@@ -5,3 +5,5 @@ docker-compose.yml
 .env
 /.vscode
 /rustc-ice-*
+/*.pem
+/Cargo.lock

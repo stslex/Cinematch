@@ -1,15 +1,22 @@
-mod api_services;
-mod auth_service;
-mod user_service;
+use crate::config::AppState;
+use actix_web::{get, web, HttpResponse, Responder};
+use auth::auth_service;
+use user::user_service;
 
-pub trait ApiServices {
-    fn api_v1(self) -> Self;
+mod auth;
+mod user;
+
+pub fn api_v1_service(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/v1")
+            .configure(user_service)
+            .configure(auth_service)
+            .service(hello),
+    );
 }
 
-pub trait UserService {
-    fn user_service(self) -> Self;
-}
-
-pub trait AuthService {
-    fn auth_service(self) -> Self;
+#[get("")]
+async fn hello<'a>(data: web::Data<AppState<'a>>) -> impl Responder {
+    let app_name = &data.app_name;
+    HttpResponse::Ok().body(format!("app running {}", app_name))
 }

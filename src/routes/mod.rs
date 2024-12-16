@@ -1,1 +1,3 @@
-pub mod user_routes;
+pub mod auth;
+mod models;
+pub mod user;

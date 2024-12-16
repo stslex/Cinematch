@@ -1,10 +1,7 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::web;
+
+use crate::routes::auth::login;
 
 pub fn auth_service(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/auth").service(login));
-}
-
-#[post("/")]
-async fn login() -> impl Responder {
-    HttpResponse::Ok().body("wow login!")
 }

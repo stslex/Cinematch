@@ -7,10 +7,12 @@ use service::api_v1_service;
 mod config;
 mod routes;
 mod service;
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
+
     info!("Starting server...");
 
     HttpServer::new(|| {

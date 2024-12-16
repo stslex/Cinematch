@@ -7,6 +7,7 @@ use service::api_v1_service;
 mod config;
 mod routes;
 mod service;
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

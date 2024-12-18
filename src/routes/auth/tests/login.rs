@@ -1,31 +1,41 @@
 #[cfg(test)]
 mod tests {
-    use actix_http::StatusCode;
+    use crate::routes::{
+        auth::{
+            login::login,
+            models::{AuthResponse, LoginRequest},
+        },
+        models::error::ErrorResponse,
+    };
     use actix_web::{http::header::ContentType, test, App};
-
     use serde_json::json;
-
-    use crate::routes::auth::login;
 
     #[actix_web::test]
     async fn login_success() {
         let app = test::init_service(App::new().service(login)).await;
-        let req_json = json!({
-            "login": "admin",
-            "username": "admin_name",
-            "password": "admin_password",
-        });
+        let request_model = LoginRequest {
+            login: "admin".to_string(),
+            username: "admin_name".to_string(),
+            password: "admin_password".to_string(),
+        };
+        let username_clone = request_model.username.clone();
         let req = test::TestRequest::post()
-            .set_json(req_json)
+            .set_json(request_model)
             .uri("/login")
             .insert_header(ContentType::json())
             .to_request();
+
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
+
+        let result: AuthResponse = test::read_body_json(resp).await;
+        assert_eq!(username_clone, result.user.username);
     }
 
     #[actix_web::test]
-    async fn login_parce_error() {
+    async fn login_parce_error<'a>() {
+        let expected_error = ErrorResponse::JSON_PARSE;
+
         let app = test::init_service(App::new().service(login)).await;
         let req_json = json!("{}");
         let req = test::TestRequest::post()
@@ -34,32 +44,39 @@ mod tests {
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+
+        assert_eq!(resp.status(), expected_error.status);
+
         let body = test::read_body(resp).await;
-        assert_eq!(body, r#"Failed to parse JSON"#);
+        assert_eq!(body, expected_error.cause);
     }
 
     #[actix_web::test]
     async fn login_empty_login() {
+        let expected_error = ErrorResponse::EMPTY_LOGIN;
+
         let app = test::init_service(App::new().service(login)).await;
-        let req_json = json!({
-            "login": "",
-            "username": "admin_name",
-            "password": "admin_password",
-        });
+        let request_model = LoginRequest {
+            login: "".to_string(),
+            username: "admin_name".to_string(),
+            password: "admin_password".to_string(),
+        };
         let req = test::TestRequest::post()
-            .set_json(req_json)
+            .set_json(request_model)
             .uri("/login")
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+
+        assert_eq!(resp.status(), expected_error.status);
         let body = test::read_body(resp).await;
-        assert_eq!(body, r#"Login cannot be empty"#);
+        assert_eq!(body, expected_error.cause);
     }
 
     #[actix_web::test]
     async fn login_empty_password() {
+        let expected_error = ErrorResponse::EMPTY_PASSWORD;
+
         let app = test::init_service(App::new().service(login)).await;
         let req_json = json!({
             "login": "admin",
@@ -72,13 +89,15 @@ mod tests {
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+        assert_eq!(resp.status(), expected_error.status);
         let body = test::read_body(resp).await;
-        assert_eq!(body, r#"Password cannot be empty"#);
+        assert_eq!(body, expected_error.cause);
     }
 
     #[actix_web::test]
     async fn login_empty_username() {
+        let expected_error = ErrorResponse::EMPTY_USERNAME;
+
         let app = test::init_service(App::new().service(login)).await;
         let req_json = json!({
             "login": "admin",
@@ -91,8 +110,8 @@ mod tests {
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+        assert_eq!(resp.status(), expected_error.status);
         let body = test::read_body(resp).await;
-        assert_eq!(body, r#"Username cannot be empty"#);
+        assert_eq!(body, expected_error.cause);
     }
 }

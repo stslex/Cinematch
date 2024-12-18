@@ -1,20 +1,20 @@
 use actix_http::StatusCode;
 use serde::{Deserialize, Serialize};
 
-use crate::routes::models::{ErrorResponse, UserResponse};
+use crate::routes::models::{error::ErrorResponse, UserResponse};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct LoginRequest {
     pub login: String,
     pub username: String,
     pub password: String,
 }
 
-#[derive(Serialize)]
-pub struct AuthResponse<'a> {
-    pub user: UserResponse<'a>,
-    pub token: &'a str,
-    pub refresh_token: &'a str,
+#[derive(Serialize, Deserialize)]
+pub struct AuthResponse {
+    pub user: UserResponse,
+    pub token: String,
+    pub refresh_token: String,
 }
 
 struct RegistrationRequest<'a> {
@@ -24,15 +24,15 @@ struct RegistrationRequest<'a> {
 }
 
 impl ErrorResponse<'static> {
-    pub const EMPTY_LOGIN: ErrorResponse<'static> = ErrorResponse {
+    pub const EMPTY_LOGIN: &'static ErrorResponse<'static> = &ErrorResponse {
         cause: "Login cannot be empty",
         status: StatusCode::BAD_REQUEST,
     };
-    pub const EMPTY_PASSWORD: ErrorResponse<'static> = ErrorResponse {
+    pub const EMPTY_PASSWORD: &'static ErrorResponse<'static> = &ErrorResponse {
         cause: "Password cannot be empty",
         status: StatusCode::BAD_REQUEST,
     };
-    pub const EMPTY_USERNAME: ErrorResponse<'static> = ErrorResponse {
+    pub const EMPTY_USERNAME: &'static ErrorResponse<'static> = &ErrorResponse {
         cause: "Username cannot be empty",
         status: StatusCode::BAD_REQUEST,
     };

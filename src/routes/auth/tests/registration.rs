@@ -1,11 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use std::ops::Not;
-
     use crate::routes::{
         auth::{
-            login::login,
-            models::{AuthResponse, LoginRequest},
+            models::{AuthResponse, RegistrationRequest},
+            registration::registration,
         },
         models::error::ErrorResponse,
     };
@@ -13,15 +11,17 @@ mod tests {
     use serde_json::json;
 
     #[actix_web::test]
-    async fn login_success() {
-        let app = test::init_service(App::new().service(login)).await;
-        let request_model = LoginRequest {
+    async fn registration_success() {
+        let app = test::init_service(App::new().service(registration)).await;
+        let request_model = RegistrationRequest {
             login: "admin".to_string(),
+            username: "admin_name".to_string(),
             password: "admin_password".to_string(),
         };
+        let request_username = request_model.username.clone();
         let req = test::TestRequest::post()
             .set_json(request_model)
-            .uri("/login")
+            .uri("/registration")
             .insert_header(ContentType::json())
             .to_request();
 
@@ -29,18 +29,18 @@ mod tests {
         assert!(resp.status().is_success());
 
         let result: AuthResponse = test::read_body_json(resp).await;
-        assert!(result.user.username.is_empty().not());
+        assert_eq!(request_username, result.user.username);
     }
 
     #[actix_web::test]
-    async fn login_parce_error<'a>() {
+    async fn registration_parce_error<'a>() {
         let expected_error = ErrorResponse::JSON_PARSE;
 
-        let app = test::init_service(App::new().service(login)).await;
+        let app = test::init_service(App::new().service(registration)).await;
         let req_json = json!("{}");
         let req = test::TestRequest::post()
             .set_json(req_json)
-            .uri("/login")
+            .uri("/registration")
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
@@ -52,17 +52,18 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn login_empty_login() {
+    async fn registration_empty_login() {
         let expected_error = ErrorResponse::EMPTY_LOGIN;
 
-        let app = test::init_service(App::new().service(login)).await;
-        let request_model = LoginRequest {
+        let app = test::init_service(App::new().service(registration)).await;
+        let request_model = RegistrationRequest {
             login: "".to_string(),
+            username: "admin_name".to_string(),
             password: "admin_password".to_string(),
         };
         let req = test::TestRequest::post()
             .set_json(request_model)
-            .uri("/login")
+            .uri("/registration")
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
@@ -73,17 +74,39 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn login_empty_password() {
+    async fn registration_empty_password() {
         let expected_error = ErrorResponse::EMPTY_PASSWORD;
 
-        let app = test::init_service(App::new().service(login)).await;
-        let request_model = LoginRequest {
+        let app = test::init_service(App::new().service(registration)).await;
+        let request_model = RegistrationRequest {
             login: "admin".to_string(),
+            username: "admin_name".to_string(),
             password: "".to_string(),
         };
         let req = test::TestRequest::post()
             .set_json(request_model)
-            .uri("/login")
+            .uri("/registration")
+            .insert_header(ContentType::json())
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert_eq!(resp.status(), expected_error.status);
+        let body = test::read_body(resp).await;
+        assert_eq!(body, expected_error.cause);
+    }
+
+    #[actix_web::test]
+    async fn registration_empty_username() {
+        let expected_error = ErrorResponse::EMPTY_USERNAME;
+
+        let app = test::init_service(App::new().service(registration)).await;
+        let request_model = RegistrationRequest {
+            login: "admin".to_string(),
+            username: "".to_string(),
+            password: "password".to_string(),
+        };
+        let req = test::TestRequest::post()
+            .set_json(request_model)
+            .uri("/registration")
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;

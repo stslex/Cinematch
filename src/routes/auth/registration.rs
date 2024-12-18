@@ -2,17 +2,17 @@ use actix_web::{post, web, Error, HttpResponse, Responder};
 use log::error;
 
 use crate::routes::{
-    auth::models::{AuthResponse, LoginRequest},
+    auth::models::{AuthResponse, RegistrationRequest},
     models::{error::ErrorResponse, ModelValidator, UserResponse},
 };
 
-#[post("/login")]
-async fn login(data: Result<web::Json<LoginRequest>, Error>) -> impl Responder {
+#[post("/registration")]
+async fn registration(data: Result<web::Json<RegistrationRequest>, Error>) -> impl Responder {
     match data.validate() {
-        Ok(_data) => {
+        Ok(data) => {
             let response = AuthResponse {
                 user: UserResponse {
-                    username: "username".to_string(),
+                    username: data.username,
                 },
                 token: "token".to_string(),
                 refresh_token: "refresh_token".to_string(),
@@ -23,8 +23,8 @@ async fn login(data: Result<web::Json<LoginRequest>, Error>) -> impl Responder {
     }
 }
 
-impl<'a> ModelValidator<'a, LoginRequest> for Result<web::Json<LoginRequest>, Error> {
-    fn validate(self) -> Result<Box<LoginRequest>, &'static ErrorResponse<'static>> {
+impl<'a> ModelValidator<'a, RegistrationRequest> for Result<web::Json<RegistrationRequest>, Error> {
+    fn validate(self) -> Result<Box<RegistrationRequest>, &'static ErrorResponse<'static>> {
         match self {
             Ok(data) => {
                 if data.login.is_empty() {
@@ -32,6 +32,9 @@ impl<'a> ModelValidator<'a, LoginRequest> for Result<web::Json<LoginRequest>, Er
                 }
                 if data.password.is_empty() {
                     return Err(ErrorResponse::EMPTY_PASSWORD);
+                }
+                if data.username.is_empty() {
+                    return Err(ErrorResponse::EMPTY_USERNAME);
                 }
                 Ok(Box::new(data.into_inner()))
             }

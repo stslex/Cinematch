@@ -6,7 +6,6 @@ use crate::routes::models::{error::ErrorResponse, UserResponse};
 #[derive(Deserialize, Serialize)]
 pub struct LoginRequest {
     pub login: String,
-    pub username: String,
     pub password: String,
 }
 
@@ -17,10 +16,11 @@ pub struct AuthResponse {
     pub refresh_token: String,
 }
 
-struct RegistrationRequest<'a> {
-    login: &'a str,
-    password: &'a str,
-    username: &'a str,
+#[derive(Deserialize, Serialize)]
+pub struct RegistrationRequest {
+    pub login: String,
+    pub username: String,
+    pub password: String,
 }
 
 impl ErrorResponse<'static> {

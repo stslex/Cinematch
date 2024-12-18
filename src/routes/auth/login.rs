@@ -1,13 +1,19 @@
 use actix_web::{post, web, Error, HttpResponse, Responder};
 use log::error;
 
-use crate::routes::{
-    auth::models::{AuthResponse, LoginRequest},
-    models::{error::ErrorResponse, ModelValidator, UserResponse},
+use crate::{
+    config::DbPool,
+    routes::{
+        auth::models::{AuthResponse, LoginRequest},
+        models::{error::ErrorResponse, ModelValidator, UserResponse},
+    },
 };
 
 #[post("/login")]
-async fn login(data: Result<web::Json<LoginRequest>, Error>) -> impl Responder {
+async fn login(
+    pool: web::Data<DbPool>,
+    data: Result<web::Json<LoginRequest>, Error>,
+) -> impl Responder {
     match data.validate() {
         Ok(_data) => {
             let response = AuthResponse {

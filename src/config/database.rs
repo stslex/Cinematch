@@ -13,10 +13,10 @@ pub fn create_db_pool() -> DbPool {
         .expect("database URL should be valid path to SQLite DB file")
 }
 
+#[cfg(test)]
 pub fn create_test_db_pool() -> DbPool {
-    let url: &str = "postgres://postgres:postgres@localhost:5432/postgres";
-    let conn_spec = std::env::var(url).expect("DATABASE_URL should be set");
-    let manager = r2d2::ConnectionManager::<PgConnection>::new(conn_spec);
+    let database_url: &str = "postgres://postgres:postgres@localhost:5432/postgres";
+    let manager = r2d2::ConnectionManager::<PgConnection>::new(database_url);
     r2d2::Pool::builder()
         .build(manager)
         .expect("database URL should be valid path to SQLite DB file")

@@ -36,4 +36,8 @@ impl ErrorResponse<'static> {
         cause: "Username cannot be empty",
         status: StatusCode::BAD_REQUEST,
     };
+    pub const USER_ALREADY_EXISTS: &'static ErrorResponse<'static> = &ErrorResponse {
+        cause: "user already exists",
+        status: StatusCode::CONFLICT,
+    };
 }

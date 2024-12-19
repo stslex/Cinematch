@@ -1,4 +1,4 @@
-use model::{ErrorResponseData, RegistrationRequestData, UserResponseData};
+use model::{ErrorResponseData, RegistrationRequestData, RegistrationResponseData};
 
 pub mod model;
 mod repository;
@@ -7,5 +7,5 @@ pub trait AuthRepository {
     async fn registration(
         self,
         model: RegistrationRequestData,
-    ) -> Result<UserResponseData, ErrorResponseData>;
+    ) -> Result<RegistrationResponseData, ErrorResponseData>;
 }

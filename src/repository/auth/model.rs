@@ -6,6 +6,12 @@ pub struct RegistrationRequestData {
     pub password: String,
 }
 
+pub struct RegistrationResponseData {
+    pub user: UserResponseData,
+    pub token: String,
+    pub refresh_token: String,
+}
+
 pub struct UserResponseData {
     pub uuid: Uuid,
     pub username: String,

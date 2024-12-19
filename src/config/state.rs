@@ -1,7 +1,7 @@
 use actix_service::ServiceFactory;
 use actix_web::{dev::ServiceRequest, web, App};
 
-use super::{database::create_db_pool, AppState, AppStateConfig};
+use super::{database::pool::create_db_pool, AppState, AppStateConfig};
 
 impl<T> AppStateConfig for App<T>
 where
@@ -15,7 +15,7 @@ where
     }
     #[cfg(test)]
     fn bind_app_state_for_tests(self) -> Self {
-        use super::database::create_test_db_pool;
+        use super::database::pool::create_test_db_pool;
 
         self.app_data(web::Data::new(create_test_db_pool()))
             .app_data(web::Data::new(AppState {

@@ -11,6 +11,9 @@ mod routes;
 pub mod schema;
 mod service;
 
+#[macro_use]
+extern crate diesel;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();

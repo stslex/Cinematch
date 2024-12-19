@@ -1,7 +1,9 @@
+use actix_web::HttpResponse;
 use error::ErrorResponse;
 use serde::{Deserialize, Serialize};
 
 pub mod error;
+mod response_parser;
 
 pub trait ModelValidator<'a, D>
 where
@@ -15,4 +17,11 @@ where
 #[derive(Serialize, Deserialize)]
 pub struct UserResponse {
     pub username: String,
+}
+
+pub trait ModelOpen<R, E>
+where
+    R: Serialize,
+{
+    fn to_response(self) -> HttpResponse;
 }

@@ -1,5 +1,6 @@
 use actix_http::{body::MessageBody, Request, Response};
 use actix_service::{IntoServiceFactory, ServiceFactory};
+use log::info;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use std::fmt;
 
@@ -21,10 +22,26 @@ where
     fn bind_server_ssl(self) -> Self {
         let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
         builder
-            .set_private_key_file("key.pem", SslFiletype::PEM)
+            .set_private_key_file("/run/secrets/key.pem", SslFiletype::PEM)
             .unwrap();
-        builder.set_certificate_chain_file("cert.pem").unwrap();
-        self.bind_openssl("127.0.0.1:8080", builder)
+        builder
+            .set_certificate_chain_file("/run/secrets/cert.pem")
+            .unwrap();
+
+        let addrs_host = std::env::var("ADDRESS").expect("PORT should be set");
+        let addrs_port = std::env::var("PORT").expect("ADDRESS should be set");
+        let addrs = format!("{}:{}", addrs_host, addrs_port);
+
+        self.bind_openssl(addrs, builder)
             .expect("Failed to bind ssl to address")
+    }
+
+    fn bind_simple_server(self) -> Self {
+        let addrs_host = std::env::var("ADDRESS").expect("PORT should be set");
+        let addrs_port = std::env::var("PORT").expect("ADDRESS should be set");
+        info!("Server running on: {}:{}", addrs_host, addrs_port);
+        let addrs = format!("{}:{}", addrs_host, addrs_port);
+
+        self.bind(addrs).expect("Failed to bind ssl to address")
     }
 }

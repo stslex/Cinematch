@@ -14,4 +14,5 @@ pub trait AppStateConfig {
 
 pub trait ServiceSertConfig {
     fn bind_server_ssl(self) -> Self;
+    fn bind_simple_server(self) -> Self;
 }

@@ -10,7 +10,7 @@ mod utils;
 pub type DbPool = r2d2::Pool<r2d2::ConnectionManager<PgConnection>>;
 
 trait DbMigration {
-    async fn run_migrations(&self) -> Self;
+    fn run_migrations(&self) -> Self;
 }
 
 pub trait DataPool<C, E>

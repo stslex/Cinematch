@@ -11,9 +11,6 @@ mod routes;
 pub mod schema;
 mod service;
 
-#[macro_use]
-extern crate diesel;
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
@@ -26,7 +23,7 @@ async fn main() -> std::io::Result<()> {
             .bind_app_state()
             .service(web::scope("/api").configure(api_v1_service))
     })
-    .bind_server_ssl()
+    .bind_simple_server()
     .run()
     .await
 }

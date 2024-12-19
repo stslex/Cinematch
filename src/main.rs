@@ -23,7 +23,7 @@ async fn main() -> std::io::Result<()> {
             .bind_app_state()
             .service(web::scope("/api").configure(api_v1_service))
     })
-    .bind_server_ssl()
+    .bind_simple_server()
     .run()
     .await
 }

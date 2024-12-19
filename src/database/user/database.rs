@@ -18,9 +18,9 @@ impl UserDatabase for &mut PgConnection {
                 error!("Failed to create user: {}", err);
                 match err {
                     diesel::result::Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                        ErrorResponseDb::CONFLICT
+                        ErrorResponseDb::Conflict
                     }
-                    _ => ErrorResponseDb::INTERNAL_SERVER_ERROR,
+                    _ => ErrorResponseDb::InternalServerError,
                 }
             })
     }
@@ -32,8 +32,8 @@ impl UserDatabase for &mut PgConnection {
             .map_err(|err| {
                 error!("Failed to get user by login: {}", err);
                 match err {
-                    diesel::result::Error::NotFound => ErrorResponseDb::NOT_FOUND,
-                    _ => ErrorResponseDb::INTERNAL_SERVER_ERROR,
+                    diesel::result::Error::NotFound => ErrorResponseDb::NotFound,
+                    _ => ErrorResponseDb::InternalServerError,
                 }
             })
     }
@@ -45,8 +45,8 @@ impl UserDatabase for &mut PgConnection {
             .map_err(|err| {
                 error!("Failed to get user by login: {}", err);
                 match err {
-                    diesel::result::Error::NotFound => ErrorResponseDb::NOT_FOUND,
-                    _ => ErrorResponseDb::INTERNAL_SERVER_ERROR,
+                    diesel::result::Error::NotFound => ErrorResponseDb::NotFound,
+                    _ => ErrorResponseDb::InternalServerError,
                 }
             })
     }
@@ -58,8 +58,8 @@ impl UserDatabase for &mut PgConnection {
             .map_err(|err| {
                 error!("Failed to get user by username: {}", err);
                 match err {
-                    diesel::result::Error::NotFound => ErrorResponseDb::NOT_FOUND,
-                    _ => ErrorResponseDb::INTERNAL_SERVER_ERROR,
+                    diesel::result::Error::NotFound => ErrorResponseDb::NotFound,
+                    _ => ErrorResponseDb::InternalServerError,
                 }
             })
     }

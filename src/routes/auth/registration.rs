@@ -1,24 +1,44 @@
-use actix_web::{post, web, Error, HttpResponse, Responder};
+use actix_web::{post, web, Error, Responder};
 use log::error;
 
-use crate::routes::{
-    auth::models::{AuthResponse, RegistrationRequest},
-    models::{error::ErrorResponse, ModelValidator, UserResponse},
+use crate::{
+    config::database::DbPool,
+    repository::auth::{
+        model::{ErrorResponseData, RegistrationRequestData},
+        AuthRepository,
+    },
+    routes::{
+        auth::models::{AuthResponse, RegistrationRequest},
+        models::{error::ErrorResponse, ModelOpen, ModelValidator, UserResponse},
+    },
 };
 
 #[post("/registration")]
-async fn registration(data: Result<web::Json<RegistrationRequest>, Error>) -> impl Responder {
+async fn registration(
+    pool: web::Data<DbPool>,
+    data: Result<web::Json<RegistrationRequest>, Error>,
+) -> impl Responder {
     match data.validate() {
-        Ok(data) => {
-            let response = AuthResponse {
+        Ok(data) => pool
+            .registration(RegistrationRequestData {
+                login: data.login,
+                password: data.password,
+                username: data.username,
+            })
+            .await
+            .map(|response| AuthResponse {
                 user: UserResponse {
-                    username: data.username,
+                    username: response.user.username,
                 },
-                token: "token".to_string(),
-                refresh_token: "refresh_token".to_string(),
-            };
-            HttpResponse::Ok().json(response)
-        }
+                token: response.token,
+                refresh_token: response.refresh_token,
+            })
+            .map_err(|err| match err {
+                ErrorResponseData::USER_ALREADY_EXISTS => ErrorResponse::USER_ALREADY_EXISTS,
+                ErrorResponseData::INTERNAL_SERVER_ERROR => ErrorResponse::INTERNAL_SERVER_ERROR,
+                ErrorResponseData::BLOCKING_ERROR => ErrorResponse::INTERNAL_SERVER_ERROR,
+            })
+            .to_response(),
         Err(err) => err.into(),
     }
 }

@@ -2,7 +2,7 @@ use actix_web::{post, web, Error, HttpResponse, Responder};
 use log::error;
 
 use crate::{
-    config::DbPool,
+    config::database::DbPool,
     routes::{
         auth::models::{AuthResponse, LoginRequest},
         models::{error::ErrorResponse, ModelValidator, UserResponse},

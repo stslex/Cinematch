@@ -7,4 +7,3 @@ docker-compose.yml
 /rustc-ice-*
 /*.pem
 /Cargo.lock
-/Dockerfile

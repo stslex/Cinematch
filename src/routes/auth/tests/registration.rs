@@ -19,9 +19,9 @@ mod tests {
         let service = test::init_service(app).await;
 
         let request_model = RegistrationRequest {
-            login: "admin".to_string(),
-            username: "admin_name".to_string(),
-            password: "admin_password".to_string(),
+            login: "user_login".to_string(),
+            username: "user_name".to_string(),
+            password: "user_password".to_string(),
         };
         let request_username = request_model.username.clone();
         let req = test::TestRequest::post()
@@ -31,6 +31,7 @@ mod tests {
             .to_request();
 
         let resp = test::call_service(&service, req).await;
+        println!("response {:?}", resp);
         assert!(resp.status().is_success());
 
         let result: AuthResponse = test::read_body_json(resp).await;

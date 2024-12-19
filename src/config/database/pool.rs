@@ -16,10 +16,13 @@ pub fn create_db_pool() -> DbPool {
 
 #[cfg(test)]
 pub fn create_test_db_pool() -> DbPool {
+    use diesel::Connection;
+
     let database_url: &str = "postgres://postgres:postgres@localhost:5432/postgres";
     let manager = r2d2::ConnectionManager::<PgConnection>::new(database_url);
-    r2d2::Pool::builder()
+    let pool = r2d2::Pool::builder()
         .build(manager)
-        .expect("database URL should be valid path to SQLite DB file")
-        .run_migrations()
+        .expect("database URL should be valid path to SQLite DB file");
+    pool.get().unwrap().begin_test_transaction().unwrap();
+    pool.run_migrations()
 }

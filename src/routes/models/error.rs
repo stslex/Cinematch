@@ -26,12 +26,6 @@ impl ErrorResponse<'static> {
     };
 }
 
-// impl Into<actix_web::HttpResponse> for ErrorResponse<'static> {
-//     fn into(self) -> actix_web::HttpResponse {
-//         HttpResponse::build(self.status).body(self.cause)
-//     }
-// }
-
 impl Into<actix_web::HttpResponse> for &'static ErrorResponse<'static> {
     fn into(self) -> actix_web::HttpResponse {
         HttpResponse::build(self.status).body(self.cause)
